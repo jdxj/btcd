@@ -40,11 +40,18 @@ var (
 // buffers for serializing and deserializing primitive numbers to and from their
 // binary encoding in order to greatly reduce the number of allocations
 // required.
-//
+
+// binaryFreeList 定义了一个并发的安全 free list (最大为 binaryFreeListMaxItems 常数定义的最大字节数),
+// 其上限为8 (因此它最多支持 uint64). 它用于提供临时缓冲区,
+// 用于在原始数字与二进制编码之间进行序列化和反序列化, 以便大大减少所需的分配数量.
+
 // For convenience, functions are provided for each of the primitive unsigned
 // integers that automatically obtain a buffer from the free list, perform the
 // necessary binary conversion, read from or write to the given io.Reader or
 // io.Writer, and return the buffer to the free list.
+
+// 为方便起见, 为每个原始无符号整数提供了函数, 这些整数会自动从 free list 中获取缓冲区,
+// 执行必要的二进制转换, 从给定的 io.Reader 或 io.Writer 读取或写入, 然后返回缓冲区到 free list.
 type binaryFreeList chan []byte
 
 // Borrow returns a byte slice from the free list with a length of 8.  A new

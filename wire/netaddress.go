@@ -28,6 +28,9 @@ func maxNetAddressPayload(pver uint32) uint32 {
 
 // NetAddress defines information about a peer on the network including the time
 // it was last seen, the services it supports, its IP address, and port.
+
+// NetAddress 定义有关网络上对等方的信息, 包括其上次被看到的时间,
+// 其支持的服务, 其 IP 地址和端口.
 type NetAddress struct {
 	// Last time the address was seen.  This is, unfortunately, encoded as a
 	// uint32 on the wire and therefore is limited to 2106.  This field is

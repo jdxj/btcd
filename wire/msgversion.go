@@ -26,6 +26,11 @@ const DefaultUserAgent = "/btcwire:0.5.0/"
 // message of its own containing the negotiated values followed by a verack
 // message (MsgVerAck).  This exchange must take place before any further
 // communication is allowed to proceed.
+
+// MsgVersion 实现 Message 接口, 并表示一个比特币 version 消息. 一旦建立出站连接,
+// 它就可用于对等方通告自己. 然后, 远程对等方将使用此信息及其自身进行协商. 然后,
+// 远程对等方必须以其自身的版本消息 (包含协商的值) 和 verack 消息 (MsgVerAck) 进行响应.
+// 这种交换必须在允许进行进一步的通信之前进行.
 type MsgVersion struct {
 	// Version of the protocol the node is using.
 	ProtocolVersion int32

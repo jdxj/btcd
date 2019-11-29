@@ -81,6 +81,10 @@ var LatestEncoding = WitnessEncoding
 // implements Message has complete control over the representation of its data
 // and may therefore contain additional or fewer fields than those which
 // are used directly in the protocol encoded message.
+
+// Message 是描述比特币消息的接口.
+// 实现 Message 的类型可以完全控制其数据的表示,
+// 因此与直接在协议编码消息中使用的字段相比, 可以包含更多或更少的字段.
 type Message interface {
 	BtcDecode(io.Reader, uint32, MessageEncoding) error
 	BtcEncode(io.Writer, uint32, MessageEncoding) error
@@ -337,6 +341,10 @@ func WriteMessageWithEncodingN(w io.Writer, msg Message, pver uint32,
 // comprise the message.  This function is the same as ReadMessageN except it
 // allows the caller to specify which message encoding is to to consult when
 // decoding wire messages.
+
+// ReadMessageWithEncodingN 从 r 读取, 验证和解析下一个提供的协议版本和比特币网络的下一个比特币消息.
+// 除了已解析的消息和构成消息的原始字节外, 它还返回读取的字节数.
+// 此功能与 ReadMessageN 相同, 不同之处在于它允许调用者指定在解码 wire 消息时要查询的消息编码.
 func ReadMessageWithEncodingN(r io.Reader, pver uint32, btcnet BitcoinNet,
 	enc MessageEncoding) (int, Message, []byte, error) {
 
@@ -424,6 +432,10 @@ func ReadMessageWithEncodingN(r io.Reader, pver uint32, btcnet BitcoinNet,
 // bytes read in addition to the parsed Message and raw bytes which comprise the
 // message.  This function is the same as ReadMessage except it also returns the
 // number of bytes read.
+
+// ReadMessageN 从 r 读取, 验证和解析下一个提供的协议版本和比特币网络的比特币消息.
+// 除了已解析的消息和构成消息的原始字节外, 它还返回读取的字节数.
+// 此函数与 ReadMessage 相同, 除了它还返回读取的字节数。
 func ReadMessageN(r io.Reader, pver uint32, btcnet BitcoinNet) (int, Message, []byte, error) {
 	return ReadMessageWithEncodingN(r, pver, btcnet, BaseEncoding)
 }
@@ -434,6 +446,10 @@ func ReadMessageN(r io.Reader, pver uint32, btcnet BitcoinNet) (int, Message, []
 // from ReadMessageN in that it doesn't return the number of bytes read.  This
 // function is mainly provided for backwards compatibility with the original
 // API, but it's also useful for callers that don't care about byte counts.
+
+// ReadMessage 从 r 中读取, 验证和解析下一个提供的协议版本和比特币网络的比特币消息.
+// 它返回已解析的消息和组成该消息的原始字节. 此函数与 ReadMessageN 的不同之处仅在于,
+// 它不返回读取的字节数. 提供此功能主要是为了与原始 API 向后兼容, 但对于不关心字节数的调用者也很有用.
 func ReadMessage(r io.Reader, pver uint32, btcnet BitcoinNet) (Message, []byte, error) {
 	_, msg, buf, err := ReadMessageN(r, pver, btcnet)
 	return msg, buf, err
