@@ -404,6 +404,13 @@ type HostToNetAddrFunc func(host string, port uint16,
 // It acts as the traffic cop between the external world and the actual
 // goroutine which writes to the network socket.
 
+// 注意: peer 的整体数据流分为3个 goroutine. 入站消息是通过 inHandler goroutine 读取的,
+// 通常会分派给它们自己的处理程序. 对于与入站数据相关的消息 (例如 blocks, 事务和 inventory),
+// 数据由相应的消息处理程序处理. 出站消息的数据流分为2个 goroutines, queueHandler 和 outHandler.
+// 第一个是 queueHandler, 它通过 QueueMessage 函数用作外部实体快速将消息入队的一种方式,
+// 而不管对等端当前是否在发送消息.
+// 它充当外部世界和写入网络套接字的实际 goroutine 之间的通信警察.
+
 // Peer provides a basic concurrent safe bitcoin peer for handling bitcoin
 // communications via the peer-to-peer protocol.  It provides full duplex
 // reading and writing, automatic handling of the initial handshake process,
@@ -411,7 +418,12 @@ type HostToNetAddrFunc func(host string, port uint16,
 // as its address, user agent, and protocol version, output message queuing,
 // inventory trickling, and the ability to dynamically register and unregister
 // callbacks for handling bitcoin protocol messages.
-//
+
+// Peer 提供了一个基本的并发安全比特币对等点, 用于通过点对点协议处理比特币通信.
+// 它提供全双工读写, 自动处理初始握手过程, 查询使用统计信息以及有关远程对等点的其他信息,
+// 例如其地址, 用户代理和协议版本, 输出消息队列, inventory trickling 以及
+// 动态注册和注销用于处理比特币协议消息的回调.
+
 // Outbound messages are typically queued via QueueMessage or QueueInventory.
 // QueueMessage is intended for all messages, including responses to data such
 // as blocks and transactions.  QueueInventory, on the other hand, is only
@@ -419,6 +431,11 @@ type HostToNetAddrFunc func(host string, port uint16,
 // the inventory together.  However, some helper functions for pushing messages
 // of specific types that typically require common special handling are
 // provided as a convenience.
+
+// 出站消息通常通过 QueueMessage 或 QueueInventory 入队.
+// QueueMessage 用于所有消息, 包括对数据 (例如 blocks 和事务) 的响应. 另一方面,
+// QueueInventory 仅用于传播 inventory, 因为它采用 trickling 机制将 inventory 分批处理.
+// 但是, 为方便起见, 提供了一些辅助功能, 用于推送通常需要进行特殊处理的特定类型的消息.
 type Peer struct {
 	// The following variables must only be used atomically.
 	bytesReceived uint64
@@ -1171,12 +1188,19 @@ func (p *Peer) maybeAddDeadline(pendingResponses map[string]time.Time, msgCmd st
 // stallHandler handles stall detection for the peer.  This entails keeping
 // track of expected responses and assigning them deadlines while accounting for
 // the time spent in callbacks.  It must be run as a goroutine.
+
+// stallHandler 处理对等方的停顿检测. 这需要跟踪预期的响应并为它们分配截止日期,
+// 同时考虑到回调所花费的时间. 它必须作为 goroutine 运行.
 func (p *Peer) stallHandler() {
 	// These variables are used to adjust the deadline times forward by the
 	// time it takes callbacks to execute.  This is done because new
 	// messages aren't read until the previous one is finished processing
 	// (which includes callbacks), so the deadline for receiving a response
 	// for a given message must account for the processing time as well.
+
+	// 这些变量用于在回调执行之前提前调整截止时间.
+	// 这样做是因为直到上一条消息完成处理 (包括回调) 后, 才会读取新消息,
+	// 因此, 接收给定消息的响应的截止日期也必须考虑到处理时间.
 	var handlerActive bool
 	var handlersStartTime time.Time
 	var deadlineOffset time.Duration
@@ -1544,6 +1568,10 @@ out:
 // a muxer for various sources of input so we can ensure that server and peer
 // handlers will not block on us sending a message.  That data is then passed on
 // to outHandler to be actually written.
+
+// queueHandler 为 peer 处理传出数据的队列. 它可以作为各种输入源的复用器运行,
+// 因此我们可以确保服务器和 peer 处理程序不会阻塞我们发送消息.
+// 然后, 该数据将传递到 outHandler 进行实际写入.
 func (p *Peer) queueHandler() {
 	pendingMsgs := list.New()
 	invSendQueue := list.New()
@@ -1557,6 +1585,12 @@ func (p *Peer) queueHandler() {
 	// message's done channel.  To avoid such confusion we keep a different
 	// flag and pendingMsgs only contains messages that we have not yet
 	// passed to outHandler.
+
+	// 我们保留 waiting 标志, 以便知道是否有消息入队到 outHandler.
+	// 我们可以使用列表的开头来表示此信息, 但是对于在清理时是否获取到该列表,
+	// 以及由此发送消息的已完成通道的发送者, 我们会非常关注.
+	// 为了避免这种混乱, 我们保留了一个不同的标志,
+	// 并且 pendingMsgs 仅包含尚未传递给 outHandler 的消息.
 	waiting := false
 
 	// To avoid duplication below.
@@ -2203,6 +2237,9 @@ func (p *Peer) WaitForDisconnect() {
 // newPeerBase returns a new base bitcoin peer based on the inbound flag.  This
 // is used by the NewInboundPeer and NewOutboundPeer functions to perform base
 // setup needed by both types of peers.
+
+// newPeerBase 根据入站标志返回一个新的基础比特币 Peer.
+// NewInboundPeer 和 NewOutboundPeer 函数使用它来执行两种类型的对等点所需的基本设置.
 func newPeerBase(origCfg *Config, inbound bool) *Peer {
 	// Default to the max supported protocol version if not specified by the
 	// caller.
