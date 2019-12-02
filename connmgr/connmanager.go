@@ -104,9 +104,16 @@ type Config struct {
 	// listeners, they will be closed when the connection manager is
 	// stopped.
 	//
+	// Listeners 定义了 listeners 切片, 连接管理器将为其获取所有权并接受连接.
+	// 接受连接后, 将与该连接一起调用 OnAccept 处理程序.
+	// 由于连接管理器拥有这些侦听器的所有权, 因此当连接管理器停止时, 它们将被关闭.
+	//
 	// This field will not have any effect if the OnAccept field is not
 	// also specified.  It may be nil if the caller does not wish to listen
 	// for incoming connections.
+	//
+	// 如果未同时指定 OnAccept 字段, 则此字段无效.
+	// 如果调用者不希望监听传入的连接, 则可能为 nil.
 	Listeners []net.Listener
 
 	// OnAccept is a callback that is fired when an inbound connection is
@@ -115,9 +122,16 @@ type Config struct {
 	// believing the connection is still active and thus have undesirable
 	// side effects such as still counting toward maximum connection limits.
 	//
+	// OnAccept 是在接受入站连接时触发的回调. 断开连接是调用者的责任.
+	// 无法关闭连接将导致连接管理器认为该连接仍处于活动状态,
+	// 并因此产生了不良影响, 例如仍计入最大连接限制.
+	//
 	// This field will not have any effect if the Listeners field is not
 	// also specified since there couldn't possibly be any accepted
 	// connections in that case.
+	//
+	// 如果未同时指定 Listeners 字段, 则此字段无效,
+	// 因为在这种情况下可能不会有任何接受的连接.
 	OnAccept func(net.Conn)
 
 	// TargetOutbound is the number of outbound network connections to
@@ -190,6 +204,11 @@ type ConnManager struct {
 // retry duration. Otherwise, if required, it makes a new connection request.
 // After maxFailedConnectionAttempts new connections will be retried after the
 // configured retry duration.
+//
+// handleFailedConn 处理由于断开连接或任何其他失败而导致的连接失败.
+// 如果 permanent 为 true, 它将在配置的重试持续时间后重试连接.
+// 否则, 如果需要, 它将发出新的连接请求.
+// 在 maxFailedConnectionAttempts 之后, 将在配置的重试持续时间后重试新的连接.
 func (cm *ConnManager) handleFailedConn(c *ConnReq) {
 	if atomic.LoadInt32(&cm.stop) != 0 {
 		return
@@ -423,6 +442,9 @@ func (cm *ConnManager) Connect(c *ConnReq) {
 		// connection manager. By registering the id before the
 		// connection is even established, we'll be able to later
 		// cancel the connection via the Remove method.
+		//
+		// 将未决的连接尝试请求提交给连接管理器.
+		// 通过在建立连接之前注册 id, 以后我们就可以通过 Remove 方法取消连接.
 		done := make(chan struct{})
 		select {
 		case cm.requests <- registerPending{c, done}:
@@ -519,6 +541,8 @@ func (cm *ConnManager) Start() {
 
 	// Start all the listeners so long as the caller requested them and
 	// provided a callback to be invoked when connections are accepted.
+	//
+	// 启动所有 listener, 只要调用者请求它们并提供接受连接时要调用的回调即可.
 	if cm.cfg.OnAccept != nil {
 		for _, listner := range cm.cfg.Listeners {
 			cm.wg.Add(1)
