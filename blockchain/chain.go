@@ -89,6 +89,10 @@ func newBestState(node *blockNode, blockSize, blockWeight, numTxns,
 // It includes functionality such as rejecting duplicate blocks, ensuring blocks
 // follow all rules, orphan handling, checkpoint handling, and best chain
 // selection with reorganization.
+//
+// BlockChain 提供用于处理比特币区块链的功能.
+// 它包含诸如拒绝重复块, 确保块遵循所有规则, 孤立处理,
+// 检查点处理以及具有重组的最佳链选择之类的功能.
 type BlockChain struct {
 	// The following fields are set when the instance is created and can't
 	// be changed afterwards, so there is no need to protect them with a
