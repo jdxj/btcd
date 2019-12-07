@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -67,6 +68,53 @@ func mockDialer(addr net.Addr) (net.Conn, error) {
 	c.Reader = r
 	c.Writer = w
 	return c, nil
+}
+
+// TestIOPipe 用于测试对 io.Pipe() 的使用
+func TestIOPipe(t *testing.T) {
+	str := "hello world"
+
+	r, w := io.Pipe()
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	// 不断地写
+	go func() {
+		defer wg.Done()
+
+		for i := 0; i < 2; i++ {
+			v := []byte(fmt.Sprintf("%s%d", str, i))
+			fmt.Printf("write: %v\n", v)
+			w.Write(v)
+			time.Sleep(time.Second)
+		}
+
+		w.Close()
+	}()
+
+	// 不断地读
+	go func() {
+		var i int
+
+		defer wg.Done()
+		defer func() {
+			fmt.Println("read count:", i)
+		}()
+
+		for {
+			buf := make([]byte, 6)
+			n, err := r.Read(buf)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Printf("read: %v\n", buf[:n])
+
+			i++
+		}
+	}()
+
+	wg.Wait()
 }
 
 // TestNewConfig tests that new ConnManager config is validated as expected.
