@@ -48,6 +48,9 @@ func (r FutureAddNodeResult) Receive() error {
 // of the RPC at some future time by invoking the Receive function on the
 // returned instance.
 //
+// AddNodeAsync 返回一个类型的实例,
+// 该类型的实例可在以后的某个时间通过在返回的实例上调用 Receive 函数来获取 RPC 的结果.
+//
 // See AddNode for the blocking version and more details.
 func (c *Client) AddNodeAsync(host string, command AddNodeCommand) FutureAddNodeResult {
 	cmd := btcjson.NewAddNodeCmd(host, btcjson.AddNodeSubCmd(command))
@@ -57,6 +60,9 @@ func (c *Client) AddNodeAsync(host string, command AddNodeCommand) FutureAddNode
 // AddNode attempts to perform the passed command on the passed persistent peer.
 // For example, it can be used to add or a remove a persistent peer, or to do
 // a one time connection to a peer.
+//
+// AddNode 尝试在传递的持久对等方上执行传递的命令.
+// 例如, 它可以用于添加或删除持久对等方, 或与该对等方建立一次性连接.
 //
 // It may not be used to remove non-persistent peers.
 func (c *Client) AddNode(host string, command AddNodeCommand) error {

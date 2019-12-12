@@ -126,12 +126,19 @@ const (
 // from the underlying JSON types which are required for the JSON-RPC
 // invocations
 //
+// Client 代表一个比特币 RPC 客户端, 它允许轻松访问比特币 RPC 服务器上可用的各种 RPC 方法.
+// 每个包装器函数都处理将传递和返回类型与 JSON-RPC 调用所需的底层 JSON 类型进行相互转换的详细信息.
+//
 // The client provides each RPC in both synchronous (blocking) and asynchronous
 // (non-blocking) forms.  The asynchronous forms are based on the concept of
 // futures where they return an instance of a type that promises to deliver the
 // result of the invocation at some future time.  Invoking the Receive method on
 // the returned future will block until the result is available if it's not
 // already.
+//
+// Client 以同步 (阻塞) 和异步 (非阻塞) 形式提供每个 RPC.
+// 异步形式基于 futures 的概念, 其中它们返回一个类型的实例, 该实例承诺在将来的某个时间交付调用结果.
+// 如果尚未返回结果, 则在返回的 future 上调用 Receive 方法将一直阻塞, 直到结果可用为止.
 type Client struct {
 	id uint64 // atomic, so must stay 64-bit aligned
 
@@ -186,6 +193,10 @@ type Client struct {
 // to call this function, however, if a custom request is being created and used
 // this function should be used to ensure the ID is unique amongst all requests
 // being made.
+//
+// NextID 返回发送 JSON-RPC 消息时要使用的下一个 ID.
+// 此 ID 允许根据 JSON-RPC 规范将响应与特定请求相关联. 通常, Client 的使用者不需要调用此函数,
+// 但是, 如果正在创建和使用自定义请求, 则应使用此函数来确保 ID 在所有请求中都是唯一的.
 func (c *Client) NextID() uint64 {
 	return atomic.AddUint64(&c.id, 1)
 }
