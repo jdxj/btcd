@@ -349,18 +349,34 @@ func (c *Client) LockUnspentAsync(unlock bool, ops []*wire.OutPoint) FutureLockU
 // input for newly created, non-raw transactions, and will not be returned in
 // future ListUnspent results, until the output is marked unlocked again.
 //
+// LockUnspent 标记 outputs 为已锁定还是已解锁, 具体取决于 unlock 布尔值.
+// 锁定后, unspent output 将不会被选作新创建的非原始交易的 input,
+// 并且在将来的 ListUnspent 结果中也不会返回, 直到再次将 output 标记为未锁定.
+//
 // If unlock is false, each outpoint in ops will be marked locked.  If unlocked
 // is true and specific outputs are specified in ops (len != 0), exactly those
 // outputs will be marked unlocked.  If unlocked is true and no outpoints are
 // specified, all previous locked outputs are marked unlocked.
 //
+// 如果 unlock 为 false, 则 ops 中的每个 outpoint 都将标记为已锁定.
+// 如果 unlock 为 true, 并且在 ops 中指定了特定 outputs (len!= 0),
+// 则这些 outputs 将被标记为已解锁. 如果 unlock 为 true, 并且未指定 outpoints,
+// 则将所有先前锁定的 output 标记为已解锁.
+//
 // The locked or unlocked state of outputs are not written to disk and after
 // restarting a wallet process, this data will be reset (every output unlocked).
+//
+// outputs 的锁定或解锁状态不会写入磁盘, 并且在重新启动钱包过程后,
+// 此数据将被重置 (每个 output 均已解锁).
 //
 // NOTE: While this method would be a bit more readable if the unlock bool was
 // reversed (that is, LockUnspent(true, ...) locked the outputs), it has been
 // left as unlock to keep compatibility with the reference client API and to
 // avoid confusion for those who are already familiar with the lockunspent RPC.
+//
+// 注意, 如果 unlock 布尔值 (即 LockUnspent(true, ...) 锁定了 outputs)
+// 则该方法更具可读性, 但该方法保留为解锁状态, 以保持与参考客户端 API 的兼容性,
+// 并避免使那些已经熟悉 lockunspent RPC 的人感到困惑.
 func (c *Client) LockUnspent(unlock bool, ops []*wire.OutPoint) error {
 	return c.LockUnspentAsync(unlock, ops).Receive()
 }
