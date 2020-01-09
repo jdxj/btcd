@@ -97,6 +97,8 @@ type BlockChain struct {
 	// The following fields are set when the instance is created and can't
 	// be changed afterwards, so there is no need to protect them with a
 	// separate mutex.
+	//
+	// 以下字段在创建实例时设置, 以后无法更改, 因此无需使用单独的互斥锁来保护它们.
 	checkpoints         []chaincfg.Checkpoint
 	checkpointsByHeight map[int32]*chaincfg.Checkpoint
 	db                  database.DB
@@ -122,8 +124,13 @@ type BlockChain struct {
 	// their own locks, however they are often also protected by the chain
 	// lock to help prevent logic races when blocks are being processed.
 	//
+	// 这些字段与内存块索引有关. 它们都有自己的锁, 但是它们通常还受到 chain 锁的保护,
+	// 以帮助防止在处理块时发生逻辑争用.
+	//
 	// index houses the entire block index in memory.  The block index is
 	// a tree-shaped structure.
+	//
+	// index 将整个块索引存储在内存中. 块索引是树形结构.
 	//
 	// bestChain tracks the current active chain by making use of an
 	// efficient chain view into the block index.

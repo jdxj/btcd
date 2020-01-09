@@ -1188,7 +1188,7 @@ func (p *Peer) maybeAddDeadline(pendingResponses map[string]time.Time, msgCmd st
 // stallHandler handles stall detection for the peer.  This entails keeping
 // track of expected responses and assigning them deadlines while accounting for
 // the time spent in callbacks.  It must be run as a goroutine.
-
+//
 // stallHandler 处理对等方的停顿检测. 这需要跟踪预期的响应并为它们分配截止日期,
 // 同时考虑到回调所花费的时间. 它必须作为 goroutine 运行.
 func (p *Peer) stallHandler() {
@@ -1197,7 +1197,7 @@ func (p *Peer) stallHandler() {
 	// messages aren't read until the previous one is finished processing
 	// (which includes callbacks), so the deadline for receiving a response
 	// for a given message must account for the processing time as well.
-
+	//
 	// 这些变量用于在回调执行之前提前调整截止时间.
 	// 这样做是因为直到上一条消息完成处理 (包括回调) 后, 才会读取新消息,
 	// 因此, 接收给定消息的响应的截止日期也必须考虑到处理时间.
@@ -1345,6 +1345,8 @@ cleanup:
 func (p *Peer) inHandler() {
 	// The timer is stopped when a new message is received and reset after it
 	// is processed.
+	//
+	// 收到新消息后计时器停止计时, 处理后将其重置.
 	idleTimer := time.AfterFunc(idleTimeout, func() {
 		log.Warnf("Peer %s no answer for %s -- disconnecting", p, idleTimeout)
 		p.Disconnect()
@@ -1745,6 +1747,8 @@ out:
 			case *wire.MsgPing:
 				// Only expects a pong message in later protocol
 				// versions.  Also set up statistics.
+				//
+				// 仅在更高的协议版本中要求 pong 消息. 还设置统计信息.
 				if p.ProtocolVersion() > wire.BIP0031Version {
 					p.statsMtx.Lock()
 					p.lastPingNonce = m.Nonce
@@ -1773,6 +1777,10 @@ out:
 			// message that it has been sent (if requested), and
 			// signal the send queue to the deliver the next queued
 			// message.
+			//
+			// 至此, 消息已成功发送, 因此更新上次发送时间,
+			// 向消息的发送方发信号通知已发送消息 (如果已请求),
+			// 并向发送队列发信号通知传递下一个排队的消息.
 			atomic.StoreInt64(&p.lastSend, time.Now().Unix())
 			if msg.doneChan != nil {
 				msg.doneChan <- struct{}{}
@@ -1789,6 +1797,9 @@ out:
 	// Drain any wait channels before we go away so we don't leave something
 	// waiting for us. We have waited on queueQuit and thus we can be sure
 	// that we will not miss anything sent on sendQueue.
+	//
+	// 在我们离开之前, 排干所有等待通道, 以免留下任何等待的东西.
+	// 我们已经在 queueQuit 上等待, 因此可以确保我们不会错过 sendQueue 上发送的任何内容.
 cleanup:
 	for {
 		select {
@@ -1840,6 +1851,10 @@ func (p *Peer) QueueMessage(msg wire.Message, doneChan chan<- struct{}) {
 // caller to specify the wire encoding type that should be used when
 // encoding/decoding blocks and transactions.
 //
+// QueueMessageWithEncoding 将传递的比特币消息添加到对等点发送队列.
+// 此功能与 QueueMessage 相同,
+// 但是它允许调用者指定在对 blocks 和事务进行编码/解码时应使用的 wire 编码类型.
+//
 // This function is safe for concurrent access.
 func (p *Peer) QueueMessageWithEncoding(msg wire.Message, doneChan chan<- struct{},
 	encoding wire.MessageEncoding) {
@@ -1861,6 +1876,10 @@ func (p *Peer) QueueMessageWithEncoding(msg wire.Message, doneChan chan<- struct
 // QueueInventory adds the passed inventory to the inventory send queue which
 // might not be sent right away, rather it is trickled to the peer in batches.
 // Inventory that the peer is already known to have is ignored.
+//
+// QueueInventory 将传递的清单添加到清单发送队列中, 该队列可能不会立即发送,
+// 而是分批下放到对等方.
+// 已知同级已经拥有的清单将被忽略.
 //
 // This function is safe for concurrent access.
 func (p *Peer) QueueInventory(invVect *wire.InvVect) {

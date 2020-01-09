@@ -22,14 +22,21 @@ const (
 	// for the block since it is already known to fit into the chain due to
 	// already proving it correct links into the chain up to a known
 	// checkpoint.  This is primarily used for headers-first mode.
+	//
+	// BFFastAdd 可以设置为表示可以避免对该块进行多次检查, 因为已知该块可以装入链中,
+	// 因为已经证明它可以正确链接到链中直到已知的检查点. 这主要用于 headers 优先模式.
 	BFFastAdd BehaviorFlags = 1 << iota
 
 	// BFNoPoWCheck may be set to indicate the proof of work check which
 	// ensures a block hashes to a value less than the required target will
 	// not be performed.
+	//
+	// BFNoPoWCheck 可以设置为表示工作量证明检查, 以确保不会执行小于所需目标值的块散列.
 	BFNoPoWCheck
 
 	// BFNone is a convenience value to specifically indicate no flags.
+	//
+	// BFNone 是一个便利值, 专门用于表示没有标志.
 	BFNone BehaviorFlags = 0
 )
 
@@ -134,9 +141,15 @@ func (b *BlockChain) processOrphans(hash *chainhash.Hash, flags BehaviorFlags) e
 // blocks, ensuring blocks follow all rules, orphan handling, and insertion into
 // the block chain along with best chain selection and reorganization.
 //
+// ProcessBlock 是处理将新区块插入到区块链中的主要工具. 它包括拒绝重复块,
+// 确保块遵循所有规则, 孤儿块处理, 插入区块链以及最长链选择和重组等功能.
+//
 // When no errors occurred during processing, the first return value indicates
 // whether or not the block is on the main chain and the second indicates
 // whether or not the block is an orphan.
+//
+// 如果在处理过程中未发生错误, 则第一个返回值表示该块是否在主链上,
+// 第二个返回值表示该块是否为孤儿块.
 //
 // This function is safe for concurrent access.
 func (b *BlockChain) ProcessBlock(block *btcutil.Block, flags BehaviorFlags) (bool, bool, error) {

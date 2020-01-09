@@ -65,16 +65,23 @@ type MessageEncoding uint32
 const (
 	// BaseEncoding encodes all messages in the default format specified
 	// for the Bitcoin wire protocol.
+	//
+	// BaseEncoding 使用为比特币 wire 协议指定的默认格式对所有消息进行编码.
 	BaseEncoding MessageEncoding = 1 << iota
 
 	// WitnessEncoding encodes all messages other than transaction messages
 	// using the default Bitcoin wire protocol specification. For transaction
 	// messages, the new encoding format detailed in BIP0144 will be used.
+	//
+	// WitnessEncoding 使用默认的比特币 wire 协议规范对除交易消息以外的所有消息进行编码.
+	// 对于交易消息, 将使用 BIP0144 中详述的新编码格式.
 	WitnessEncoding
 )
 
 // LatestEncoding is the most recently specified encoding for the Bitcoin wire
 // protocol.
+//
+// LatestEncoding 是比特币 wire 协议的最新指定编码.
 var LatestEncoding = WitnessEncoding
 
 // Message is an interface that describes a bitcoin message.  A type that
@@ -204,6 +211,10 @@ func readMessageHeader(r io.Reader) (int, *messageHeader, error) {
 	// to read the entire header into a buffer first in case there is a
 	// short read so the proper amount of read bytes are known.  This works
 	// since the header is a fixed size.
+	//
+	// 由于 readElements 不会返回读取的字节数, 因此, 如果读取较短,
+	// 则尝试首先将整个 header 读取到缓冲区中, 以便知道适当的读取字节数.
+	// 这是可行的, 因为 header 是固定大小的.
 	var headerBytes [MessageHeaderSize]byte
 	n, err := io.ReadFull(r, headerBytes[:])
 	if err != nil {
@@ -390,6 +401,9 @@ func ReadMessageWithEncodingN(r io.Reader, pver uint32, btcnet BitcoinNet,
 	// Check for maximum length based on the message type as a malicious client
 	// could otherwise create a well-formed header and set the length to max
 	// numbers in order to exhaust the machine's memory.
+	//
+	// 根据消息类型检查最大长度, 否则恶意客户端可能会创建格式正确的 header,
+	// 并将长度设置为最大, 以耗尽计算机的内存.
 	mpl := msg.MaxPayloadLength(pver)
 	if hdr.length > mpl {
 		discardInput(r, hdr.length)

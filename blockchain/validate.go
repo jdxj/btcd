@@ -301,9 +301,15 @@ func CheckTransactionSanity(tx *btcutil.Tx) error {
 // difficulty is in min/max range and that the block hash is less than the
 // target difficulty as claimed.
 //
+// checkProofOfWork 确保块 header bites 表示目标难度在最小/最大范围内,
+// 并且块哈希值小于要求的目标难度.
+//
 // The flags modify the behavior of this function as follows:
 //  - BFNoPoWCheck: The check to ensure the block hash is less than the target
 //    difficulty is not performed.
+//
+// flags 修改该函数的行为, 如下所示:
+// - BFNoPoWCheck: 不会执行确保块哈希小于目标难度的检查.
 func checkProofOfWork(header *wire.BlockHeader, powLimit *big.Int, flags BehaviorFlags) error {
 	// The target difficulty must be larger than zero.
 	target := CompactToBig(header.Bits)
@@ -433,6 +439,8 @@ func checkBlockHeaderSanity(header *wire.BlockHeader, powLimit *big.Int, timeSou
 	// Ensure the proof of work bits in the block header is in min/max range
 	// and the block hash is less than the target value described by the
 	// bits.
+	//
+	// 确保块头中的工作证明 bits 在最小/最大范围内, 并且块哈希小于这些 bits 描述的目标值.
 	err := checkProofOfWork(header, powLimit, flags)
 	if err != nil {
 		return err
@@ -443,6 +451,10 @@ func checkBlockHeaderSanity(header *wire.BlockHeader, powLimit *big.Int, timeSou
 	// nanosecond precision whereas the consensus rules only apply to
 	// seconds and it's much nicer to deal with standard Go time values
 	// instead of converting to seconds everywhere.
+	//
+	// block 时间戳的精度不得超过一秒.
+	// 此检查是必需的, 因为 Go time.Time 值支持纳秒精度, 而共识规则仅适用于秒,
+	// 并且处理标准 Go time 值要好得多, 而不是到处都转换为秒.
 	if !header.Timestamp.Equal(time.Unix(header.Timestamp.Unix(), 0)) {
 		str := fmt.Sprintf("block timestamp of %v has a higher "+
 			"precision than one second", header.Timestamp)
@@ -464,8 +476,13 @@ func checkBlockHeaderSanity(header *wire.BlockHeader, powLimit *big.Int, timeSou
 // checkBlockSanity performs some preliminary checks on a block to ensure it is
 // sane before continuing with block processing.  These checks are context free.
 //
+// checkBlockSanity 对块执行一些初步检查, 以确保它在继续进行块处理之前是健全的.
+// 这些检查是上下文无关的.
+//
 // The flags do not modify the behavior of this function directly, however they
 // are needed to pass along to checkBlockHeaderSanity.
+//
+// flags 不会直接修改此函数的行为, 但是需要将其传递给 checkBlockHeaderSanity.
 func checkBlockSanity(block *btcutil.Block, powLimit *big.Int, timeSource MedianTimeSource, flags BehaviorFlags) error {
 	msgBlock := block.MsgBlock()
 	header := &msgBlock.Header
@@ -529,6 +546,11 @@ func checkBlockSanity(block *btcutil.Block, powLimit *big.Int, timeSource Median
 	// checks.  Bitcoind builds the tree here and checks the merkle root
 	// after the following checks, but there is no reason not to check the
 	// merkle root matches here.
+	//
+	// 建立 merkle 树, 并确保计算出的 merkle 根与 block header 中的条目匹配.
+	// 这还具有在 block 中缓存所有交易哈希的作用, 以加快将来的哈希检查.
+	// Bitcoind 在此处构建树, 并在进行以下检查后检查 Merkle 根,
+	// 但没有理由不在此处检查 Merkle 根匹配项.
 	merkles := BuildMerkleTreeStore(block.Transactions(), false)
 	calculatedMerkleRoot := merkles[len(merkles)-1]
 	if !header.MerkleRoot.IsEqual(calculatedMerkleRoot) {

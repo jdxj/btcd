@@ -70,6 +70,9 @@ const (
 
 	// SFNodeWitness is a flag used to indicate a peer supports blocks
 	// and transactions including witness data (BIP0144).
+	//
+	// SFNodeWitness 是一个标志, 用于指示 peer 支持包括见证数据
+	// (BIP0144) 的 blocks 和事务.
 	SFNodeWitness
 
 	// SFNodeXthin is a flag used to indicate a peer supports xthin blocks.
@@ -145,6 +148,9 @@ type BitcoinNet uint32
 // used to seek to the next message when a stream's state is unknown, but
 // this package does not provide that functionality since it's generally a
 // better idea to simply disconnect clients that are misbehaving over TCP.
+//
+// 用于表示消息比特币网络的常数. 当流的状态未知时, 它们也可以用于寻找下一条消息,
+// 但是此程序包不提供该功能, 因为通常最好是断开 TCP 行为不正常的客户端的连接.
 const (
 	// MainNet represents the main bitcoin network.
 	MainNet BitcoinNet = 0xd9b4bef9
