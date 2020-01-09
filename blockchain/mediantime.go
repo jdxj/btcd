@@ -33,6 +33,9 @@ var (
 // MedianTimeSource provides a mechanism to add several time samples which are
 // used to determine a median time which is then used as an offset to the local
 // clock.
+//
+// MedianTimeSource 提供一种添加几个时间样本的机制, 这些样本用于确定中位时间,
+// 然后将该中位时间用作本地时钟的偏移量.
 type MedianTimeSource interface {
 	// AdjustedTime returns the current time adjusted by the median time
 	// offset as calculated from the time samples added by AddTimeSample.
@@ -44,6 +47,8 @@ type MedianTimeSource interface {
 
 	// Offset returns the number of seconds to adjust the local clock based
 	// upon the median of the time samples added by AddTimeData.
+	//
+	// Offset 返回基于 AddTimeData 添加的时间采样的中值来调整本地时钟的秒数.
 	Offset() time.Duration
 }
 
@@ -74,6 +79,10 @@ func (s int64Sorter) Less(i, j int) bool {
 // It is limited to maxMedianTimeEntries includes the same buggy behavior as
 // the time offset mechanism in Bitcoin Core.  This is necessary because it is
 // used in the consensus code.
+//
+// medianTime 提供 MedianTimeSource 接口的实现.
+// 仅限于 maxMedianTimeEntries 包含与 Bitcoin Core 中的时间偏移机制相同的错误行为.
+// 这是必需的, 因为它在共识代码中使用.
 type medianTime struct {
 	mtx                sync.Mutex
 	knownIDs           map[string]struct{}
@@ -118,6 +127,9 @@ func (m *medianTime) AddTimeSample(sourceID string, timeVal time.Time) {
 	// of offsets while respecting the maximum number of allowed entries by
 	// replacing the oldest entry with the new entry once the maximum number
 	// of entries is reached.
+	//
+	// 将提供的 offset 截断为秒, 并将其附加到偏移量切片中,
+	// 同时在达到最大条目数时通过将最旧的条目替换为新条目来遵守允许的最大条目数.
 	now := time.Unix(time.Now().Unix(), 0)
 	offsetSecs := int64(timeVal.Sub(now).Seconds())
 	numOffsets := len(m.offsets)

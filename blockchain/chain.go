@@ -33,6 +33,11 @@ const (
 // exponentially decrease the number of hashes as a function of the distance
 // from the block being located.
 //
+// BlockLocator 用于帮助定位特定的块. 构建块定位器的算法是按相反顺序添加哈希,
+// 直到达到创世块为止. 为了使定位器哈希的列表保持在合理数量的条目中,
+// 首先添加最近的前12个块哈希, 然后在每个循环迭代中将步骤加倍, 以成倍减少哈希数,
+// 该哈希数与到被定位的块的距离成函数关系.
+//
 // For example, assume a block chain with a side chain as depicted below:
 // 	genesis -> 1 -> 2 -> ... -> 15 -> 16  -> 17  -> 18
 // 	                              \-> 16a -> 17a
@@ -44,6 +49,9 @@ type BlockLocator []*chainhash.Hash
 // orphanBlock represents a block that we don't yet have the parent for.  It
 // is a normal block plus an expiration time to prevent caching the orphan
 // forever.
+//
+// orphanBlock 表示我们尚无父级的块.
+// 这是一个正常的块, 加上一个到期时间以防止永远缓存该孤儿.
 type orphanBlock struct {
 	block      *btcutil.Block
 	expiration time.Time
@@ -53,11 +61,17 @@ type orphanBlock struct {
 // related to the state of the main chain as it exists from the point of view of
 // the current best block.
 //
+// BestState 存储有关当前最佳区块的信息以及从当前最佳区块的角度来看与主链状态相关的其他信息.
+//
 // The BestSnapshot method can be used to obtain access to this information
 // in a concurrent safe manner and the data will not be changed out from under
 // the caller when chain state changes occur as the function name implies.
 // However, the returned snapshot must be treated as immutable since it is
 // shared by all callers.
+//
+// BestSnapshot 方法可用于以一种安全的并发方式访问此信息,
+// 并且当链状态发生变化时 (如函数名所暗示的那样), 数据将不会从调用者下方更改.
+// 但是, 返回的快照必须被视为不可变的, 因为它被所有调用者共享.
 type BestState struct {
 	Hash        chainhash.Hash // The hash of the block.
 	Height      int32          // The height of the block.
@@ -1639,24 +1653,37 @@ func (b *BlockChain) LocateHeaders(locator BlockLocator, hashStop *chainhash.Has
 // IndexManager provides a generic interface that the is called when blocks are
 // connected and disconnected to and from the tip of the main chain for the
 // purpose of supporting optional indexes.
+//
+// IndexManager 提供了一个通用接口, 当块与主链末端连接和断开连接时,
+// 就会调用, 以支持可选索引.
 type IndexManager interface {
 	// Init is invoked during chain initialize in order to allow the index
 	// manager to initialize itself and any indexes it is managing.  The
 	// channel parameter specifies a channel the caller can close to signal
 	// that the process should be interrupted.  It can be nil if that
 	// behavior is not desired.
+	//
+	// 在链初始化期间调用 Init, 以允许索引管理器初始化自身及其正在管理的所有索引.
+	// channel 参数指定调用者可以关闭的通道, 以指示该过程应被中断.
+	// 如果不需要这种行为, 则可以为 nil.
 	Init(*BlockChain, <-chan struct{}) error
 
 	// ConnectBlock is invoked when a new block has been connected to the
 	// main chain. The set of output spent within a block is also passed in
 	// so indexers can access the previous output scripts input spent if
 	// required.
+	//
+	// 当新块已连接到主链时, 将调用 ConnectBlock. 块中花费的一组输出也将传入,
+	// 因此索引器可以根据需要访问先前花费的输出脚本输入.
 	ConnectBlock(database.Tx, *btcutil.Block, []SpentTxOut) error
 
 	// DisconnectBlock is invoked when a block has been disconnected from
 	// the main chain. The set of outputs scripts that were spent within
 	// this block is also returned so indexers can clean up the prior index
 	// state for this block.
+	//
+	// 当块与主链断开连接时, 调用 DisconnectBlock.
+	// 还返回在该块中花费的输出脚本集, 以便索引器可以清除该块的先前索引状态.
 	DisconnectBlock(database.Tx, *btcutil.Block, []SpentTxOut) error
 }
 

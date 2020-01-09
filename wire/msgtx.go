@@ -238,6 +238,9 @@ func NewTxIn(prevOut *OutPoint, signatureScript []byte, witness [][]byte) *TxIn 
 
 // TxWitness defines the witness for a TxIn. A witness is to be interpreted as
 // a slice of byte slices, or a stack with one or many elements.
+//
+// TxWitness 定义 TxIn 的 witness.
+// witness 将被解释为 [][]byte, 或具有一个或多个元素的堆栈.
 type TxWitness [][]byte
 
 // SerializeSize returns the number of bytes it would take to serialize the the

@@ -44,9 +44,15 @@ var (
 // checkpoints allows a few optimizations for old blocks during initial download
 // and also prevents forks from old blocks.
 //
+// Checkpoint 标识区块链中的已知优点. 使用检查点可以在初始下载期间对旧块进行一些优化,
+// 还可以防止从旧块派生.
+//
 // Each checkpoint is selected based upon several factors.  See the
 // documentation for blockchain.IsCheckpointCandidate for details on the
 // selection criteria.
+//
+// 根据多个因素选择每个检查点. 有关选择标准的详细信息,
+// 请参见 blockchain.IsCheckpointCandidate 文档.
 type Checkpoint struct {
 	Height int32
 	Hash   *chainhash.Hash
@@ -106,6 +112,9 @@ const (
 // Params defines a Bitcoin network by its parameters.  These parameters may be
 // used by Bitcoin applications to differentiate networks as well as addresses
 // and keys for one network from those intended for use on another network.
+//
+// Params 通过其参数定义了一个比特币网络. 比特币应用程序可以使用这些参数来区分网络以及
+// 一个网络的地址和密钥与打算在另一个网络上使用的地址和密钥.
 type Params struct {
 	// Name defines a human-readable identifier for the network.
 	Name string
@@ -136,22 +145,31 @@ type Params struct {
 
 	// These fields define the block heights at which the specified softfork
 	// BIP became active.
+	//
+	// 这些字段定义指定软分叉 BIP 激活时的块高度.
 	BIP0034Height int32
 	BIP0065Height int32
 	BIP0066Height int32
 
 	// CoinbaseMaturity is the number of blocks required before newly mined
 	// coins (coinbase transactions) can be spent.
+	//
+	// CoinbaseMaturity 是可以花费新开采的币 (coinbase 交易) 之前所需的块数.
 	CoinbaseMaturity uint16
 
 	// SubsidyReductionInterval is the interval of blocks before the subsidy
 	// is reduced.
+	//
+	// SubsidyReductionInterval 是减少补贴之前的块间隔.
 	SubsidyReductionInterval int32
 
 	// TargetTimespan is the desired amount of time that should elapse
 	// before the block difficulty requirement is examined to determine how
 	// it should be changed in order to maintain the desired block
 	// generation rate.
+	//
+	// TargetTimespan 是在检查块难度要求以确定如何更改它以保持所需块生成率之前
+	// 应该经过的期望时间量.
 	TargetTimespan time.Duration
 
 	// TargetTimePerBlock is the desired amount of time to generate each
@@ -161,16 +179,25 @@ type Params struct {
 	// RetargetAdjustmentFactor is the adjustment factor used to limit
 	// the minimum and maximum amount of adjustment that can occur between
 	// difficulty retargets.
+	//
+	// RetargetAdjustmentFactor 是用于限制难度 retargets 之间可能发生的
+	// 最小和最大调整量的调整因子.
 	RetargetAdjustmentFactor int64
 
 	// ReduceMinDifficulty defines whether the network should reduce the
 	// minimum required difficulty after a long enough period of time has
 	// passed without finding a block.  This is really only useful for test
 	// networks and should not be set on a main network.
+	//
+	// ReduceMinDifficulty 定义在经过足够长的时间后没有找到 block 的情况下,
+	// 网络是否应降低所需的最低难度. 这实际上仅对 test 网络有用,
+	// 不应在 main 网络上设置.
 	ReduceMinDifficulty bool
 
 	// MinDiffReductionTime is the amount of time after which the minimum
 	// required difficulty should be reduced when a block hasn't been found.
+	//
+	// MinDiffReductionTime 是没有找到块时应减少的最低所需难度的时间.
 	//
 	// NOTE: This only applies if ReduceMinDifficulty is true.
 	MinDiffReductionTime time.Duration
@@ -179,15 +206,23 @@ type Params struct {
 	GenerateSupported bool
 
 	// Checkpoints ordered from oldest to newest.
+	//
+	// 检查点从最旧到最新的顺序.
 	Checkpoints []Checkpoint
 
 	// These fields are related to voting on consensus rule changes as
 	// defined by BIP0009.
 	//
+	// 这些字段与 BIP0009 定义的共识规则更改投票有关.
+	//
 	// RuleChangeActivationThreshold is the number of blocks in a threshold
 	// state retarget window for which a positive vote for a rule change
 	// must be cast in order to lock in a rule change. It should typically
 	// be 95% for the main network and 75% for test networks.
+	//
+	// RuleChangeActivationThreshold 是阈值状态重定位窗口中的块数,
+	// 必须锁定规则更改以对其投赞成票才能锁定规则更改.
+	// 对于 main 网络, 通常应为95％; 对于 test 网络, 通常应为75％.
 	//
 	// MinerConfirmationWindow is the number of blocks in each threshold
 	// state retarget window.

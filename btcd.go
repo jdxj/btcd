@@ -304,6 +304,9 @@ func main() {
 	// limits the garbage collector from excessively overallocating during
 	// bursts.  This value was arrived at with the help of profiling live
 	// usage.
+	//
+	// 块和事务处理可能导致突发分配. 这限制了垃圾收集器在突发期间不会过度分配.
+	// 该值是通过对实时使用情况进行性能分析得出的.
 	debug.SetGCPercent(10)
 
 	// Up some limits.

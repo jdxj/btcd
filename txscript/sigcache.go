@@ -32,6 +32,14 @@ type sigCacheEntry struct {
 // Secondly, usage of the SigCache introduces a signature verification
 // optimization which speeds up the validation of transactions within a block,
 // if they've already been seen and verified within the mempool.
+//
+// SigCache 使用随机条目逐出策略实现 ECDSA 签名验证缓存. 只有有效的签名会被添加到缓存中.
+// SigCache 的好处有两方面. 首先, 使用 SigCache 可以缓解 DoS 攻击, 其中,
+// 由于在处理攻击者制作的无效交易时触发的最坏情况的行为, 攻击导致受害者的客户端挂起.
+// 可在以下位置找到缓解的 DoS 攻击的详细说明:
+// https://bitslog.wordpress.com/2013/01/23/fixed-bitcoin-vulnerability-explanation-why-the-signature-cache-is-a-dos-protection/.
+// 其次, 如果已在内存池中看到并验证了交易, 则 SigCache 的使用会引入签名验证优化功能,
+// 从而加快块内交易的验证速度.
 type SigCache struct {
 	sync.RWMutex
 	validSigs  map[chainhash.Hash]sigCacheEntry
