@@ -47,11 +47,16 @@ import (
 // NAT is an interface representing a NAT traversal options for example UPNP or
 // NAT-PMP. It provides methods to query and manipulate this traversal to allow
 // access to services.
+//
+// NAT 是代表 NAT 遍历选项的接口, 例如 UPNP 或 NAT-PMP.
+// 它提供了查询和操纵此遍历以允许访问服务的方法.
 type NAT interface {
 	// Get the external address from outside the NAT.
 	GetExternalAddress() (addr net.IP, err error)
 	// Add a port mapping for protocol ("udp" or "tcp") from external port to
 	// internal port with description lasting for timeout.
+	//
+	// 添加从外部端口到内部端口的协议 ("udp" 或 "tcp") 的端口映射, description timeout.
 	AddPortMapping(protocol string, externalPort, internalPort int, description string, timeout int) (mappedExternalPort int, err error)
 	// Remove a previously added port mapping from external port to
 	// internal port.

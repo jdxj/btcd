@@ -40,6 +40,10 @@ var winServiceMain func() (bool, error)
 // optional serverChan parameter is mainly used by the service code to be
 // notified with the server once it is setup so it can gracefully stop it when
 // requested from the service control manager.
+//
+// btcdMain 是 btcd 的真正主函数. 有必要解决以下事实: 调用 os.Exit() 时,
+// 延迟函数不会运行. 可选的 serverChan 参数主要由服务代码使用, 一旦设置好,
+// 服务器便会通知该参数, 以便在服务控制管理器请求时可以正常停止该参数.
 func btcdMain(serverChan chan<- *server) error {
 	// Load configuration and parse command line.  This function also
 	// initializes logging and configures it accordingly.
@@ -57,6 +61,9 @@ func btcdMain(serverChan chan<- *server) error {
 	// Get a channel that will be closed when a shutdown signal has been
 	// triggered either from an OS signal such as SIGINT (Ctrl+C) or from
 	// another subsystem such as the RPC server.
+	//
+	// 获取一个通道, 该通道要么从操作系统信号 (例如 SIGINT (Ctrl+C)), 要么
+	// 从另一个子系统 (例如 RPC 服务器) 触发关闭信号时被关闭.
 	interrupt := interruptListener()
 	defer btcdLog.Info("Shutdown complete")
 

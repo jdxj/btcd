@@ -18,6 +18,8 @@ const (
 
 // SetLimits raises some process limits to values which allow btcd and
 // associated utilities to run.
+//
+// SetLimits 对允许 btcd 和关联的实用程序运行的值提出了一些处理限制.
 func SetLimits() error {
 	var rLimit syscall.Rlimit
 

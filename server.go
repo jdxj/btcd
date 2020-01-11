@@ -56,6 +56,9 @@ const (
 	// connectionRetryInterval is the base amount of time to wait in between
 	// retries when connecting to persistent peers.  It is adjusted by the
 	// number of retries such that there is a retry backoff.
+	//
+	// connectionRetryInterval 是在连接到持久 peer 时重试之间等待的基本时间.
+	// 它通过重试次数进行调整, 以使存在重试退避.
 	connectionRetryInterval = time.Second * 5
 )
 
@@ -133,6 +136,9 @@ type broadcastInventoryDel *wire.InvVect
 
 // relayMsg packages an inventory vector along with the newly discovered
 // inventory so the relay has access to that information.
+//
+// relayMsg 将 inventory vector 与新发现的 inventory 打包在一起,
+// 以便 relay 可以访问该信息.
 type relayMsg struct {
 	invVect *wire.InvVect
 	data    interface{}
@@ -2636,6 +2642,12 @@ func newServer(listenAddrs, agentBlacklist, agentWhitelist []string,
 	// the addrindex uses data from the txindex during catchup.  If the
 	// addrindex is run first, it may not have the transactions from the
 	// current block indexed.
+	//
+	// 根据需要创建事务和地址索引.
+	//
+	// 注意: txindex 必须在 indexes 数组中排在第一位,
+	// 因为 addrindex 在追赶期间会使用 txindex 中的数据.
+	// 如果首先运行 addrindex, 则可能没有索引当前 block 中的事务.
 	var indexes []indexers.Indexer
 	if cfg.TxIndex || cfg.AddrIndex {
 		// Enable transaction index if address index is enabled since it
@@ -2915,6 +2927,9 @@ func newServer(listenAddrs, agentBlacklist, agentWhitelist []string,
 // initListeners initializes the configured net listeners and adds any bound
 // addresses to the address manager. Returns the listeners and a NAT interface,
 // which is non-nil if UPnP is in use.
+//
+// initListeners 初始化配置的网络侦听器, 并将所有绑定的地址添加到地址管理器.
+// 返回侦听器和一个 NAT 接口, 如果正在使用 UPnP, 则该接口为非 nil.
 func initListeners(amgr *addrmgr.AddrManager, listenAddrs []string, services wire.ServiceFlag) ([]net.Listener, NAT, error) {
 	// Listen for TCP connections at the configured addresses
 	netAddrs, err := parseListeners(listenAddrs)

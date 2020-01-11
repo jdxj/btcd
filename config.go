@@ -403,6 +403,9 @@ func newConfigParser(cfg *config, so *serviceOptions, options flags.Options) *fl
 // The above results in btcd functioning properly without any config settings
 // while still allowing the user to override settings with config files and
 // command line options.  Command line options always take precedence.
+//
+// 上面的结果导致 btcd 可以在没有任何配置设置的情况下正常运行,
+// 同时仍然允许用户使用配置文件和命令行选项覆盖设置. 命令行选项始终优先.
 func loadConfig() (*config, []string, error) {
 	// Default config.
 	cfg := config{
@@ -1174,8 +1177,14 @@ func btcdDial(addr net.Addr) (net.Conn, error) {
 // be resolved using tor when the --proxy flag was specified unless --noonion
 // was also specified in which case the normal system DNS resolver will be used.
 //
+// btcdLookup 根据配置选项使用正确的 DNS 查找功能来解析给定主机的IP. 例如,
+// 在指定 --proxy 标志时将使用 tor 解析地址, 除非指定了 --noonion, 在这种情况下,
+// 将使用常规系统 DNS 解析器.
+//
 // Any attempt to resolve a tor address (.onion) will return an error since they
 // are not intended to be resolved outside of the tor proxy.
+//
+// 任何解析 tor 地址 (.onion) 的尝试都将返回错误, 因为它们不打算在 tor 代理之外进行解析.
 func btcdLookup(host string) ([]net.IP, error) {
 	if strings.HasSuffix(host, ".onion") {
 		return nil, fmt.Errorf("attempt to resolve tor address %s", host)

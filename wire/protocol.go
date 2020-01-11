@@ -58,14 +58,21 @@ type ServiceFlag uint64
 
 const (
 	// SFNodeNetwork is a flag used to indicate a peer is a full node.
+	//
+	// SFNodeNetwork 是用于指示 peer 是全节点的标志.
 	SFNodeNetwork ServiceFlag = 1 << iota
 
 	// SFNodeGetUTXO is a flag used to indicate a peer supports the
 	// getutxos and utxos commands (BIP0064).
+	//
+	// SFNodeGetUTXO 是用于指示 peer 支持 getutxos 和
+	// utxos 命令 (BIP0064) 的标志.
 	SFNodeGetUTXO
 
 	// SFNodeBloom is a flag used to indicate a peer supports bloom
 	// filtering.
+	//
+	// SFNodeBloom 是用于指示 peer 支持 Bloom 过滤的标志.
 	SFNodeBloom
 
 	// SFNodeWitness is a flag used to indicate a peer supports blocks
